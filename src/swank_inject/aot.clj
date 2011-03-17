@@ -3,8 +3,7 @@
    :name com.wirde.inject.Main)
   (:use [swank-inject.jdi])
   (:use [clojure.contrib.command-line])
-  (:require [swank.swank :as swank])
-  )
+  (:require [swank.swank :as swank]))
 
 (gen-interface
  :name com.wirde.inject.Injectee
@@ -22,7 +21,7 @@
 
 ;;TODO:
 ;;Better error message
-;;Allow multiple classnames
+;;Allow multiple classnames(?)
 (defn -main [& args]
   (with-command-line args
     "Remote Swank injector."
@@ -63,7 +62,10 @@
   (.println System/out args)
   (.inject injectee args))
 
+;;Need a global for the binding below
+(def *ctx* nil)
+
 (defn swank-inject [this args]
-  (def *ctx* args)
-  (swank/start-repl)
+  (binding [*ctx* args]
+    (swank/start-repl))
   "Starting Swank")
