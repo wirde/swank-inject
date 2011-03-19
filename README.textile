@@ -1,0 +1,12 @@
+h1. Injecting a Clojure REPL in an unmodified application (with remote debugging enabled)
+
+h2. Building
+lein uberjar
+
+Usage:
+
+Start application in remote debug mode using JVM switches:
+-Xdebug -Xrunjdwp:transport=dt_socket,address=7777,server=y,suspend=n 
+
+Start injector:
+java -cp swank-inject-1.0.0-SNAPSHOT-standalone.jar com.wirde.inject.Main -host localhost -port 7777 -url [URL to the standalone jar] -instances [qualified class name of a (singleton) instance]

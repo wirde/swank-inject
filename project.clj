@@ -1,5 +1,5 @@
 (defproject swank-inject "1.0.0-SNAPSHOT"
-  :description "FIXME: write"
+  :description "Inject clojure code into a running application with remote debugging enabled"
   :dependencies [[org.clojure/clojure "1.2.0"]
                  [org.clojure/clojure-contrib "1.2.0"]
 		 [swank-clojure "1.2.1"]]

@@ -1,3 +1,8 @@
+(ns user)
+(def
+;; ^{:ns user}
+ *ctx* nil)
+
 (ns swank-inject.aot
   (:gen-class
    :name com.wirde.inject.Main)
@@ -63,9 +68,12 @@
   (.inject injectee args))
 
 ;;Need a global for the binding below
-(def *ctx* nil)
+;;(ns user)
 
+;;(ns swank-inject.aot)
+  
 (defn swank-inject [this args]
-  (binding [*ctx* args]
+  ;;TODO: Bind a seq, not a List
+  (binding [user/*ctx* (seq args)]
     (swank/start-repl))
   "Starting Swank")

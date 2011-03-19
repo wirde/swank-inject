@@ -7,6 +7,7 @@
 	'(com.sun.jdi.event BreakpointEvent))
 
 (def *finalizer-thread* "Finalizer")
+(def *timeout* 10000)
 
 ;;TODO: pre-conditions
 
@@ -16,7 +17,7 @@
 	args (.defaultArguments socket-conn)]
     (.setValue (.get args "port") port)
     (.setValue (.get args "hostname") host)
-    (.setValue (.get args "timeout") 10000)
+    (.setValue (.get args "timeout") *timeout*)
     (.attach socket-conn args)))
 
 (defn suspend-finalizer-thread [vm]
@@ -29,7 +30,7 @@
       (.resume thread)
       (.interrupt thread)
       ;;TODO: we could get other events here...
-      (if (.isEmpty (.remove (.eventQueue vm) 1000))
+      (if (.isEmpty (.remove (.eventQueue vm) *timeout*))
 	(throw (RuntimeException. "Got no breakpoint event")))
       (.disable breakpoint))
     thread))
@@ -111,6 +112,7 @@
 (defn inject-bootstrapper [thread urls injectee instances]
   (let [vm (.virtualMachine thread)
 	prev-context-classloader (get-context-classloader thread)
+	;;TODO: Find a suitable parent classloader given the classes already loaded
 	url-classloader (create-url-classloader thread urls (.getClassLoader (.getClass (first instances))))]
     
     (set-context-classloader thread url-classloader)
