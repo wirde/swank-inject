@@ -1,6 +1,7 @@
-h1. Injecting a Clojure REPL in an unmodified application (with remote debugging enabled)
+h1. Injecting a Clojure REPL in an unmodified application 
 
 h2. Building
+
 lein uberjar
 
 Usage:
