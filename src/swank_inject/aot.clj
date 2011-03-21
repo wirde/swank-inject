@@ -8,6 +8,7 @@
    :name com.wirde.inject.Main)
   (:use [swank-inject.jdi])
   (:use [clojure.contrib.command-line])
+  (:require [clojure.string :as str])
   (:require [swank.swank :as swank]))
 
 (gen-interface
@@ -37,7 +38,9 @@
      [instances "Comma separated list of classes to locate instances for"] 
      remaining]
     (if (or (nil? host) (nil? port) (nil? url))
-      (println "Host, port and url must be specified using -host <arg> -port <arg> -url <arg>")
+      (do
+	(println "Host, port and url must be specified using -host <arg> -port <arg> -url <arg>")
+	)
       (if (not (empty? remaining))
 	(println "Unknown arguments: " remaining)
 	(do
@@ -51,7 +54,7 @@
 		      thread
 		      (list url)
 		      "com.wirde.inject.SwankInjectee"
-		      (map #(find-first-instance vm %) (list instances))))
+		      (map #(find-first-instance vm %) (str/split instances (java.util.regex.Pattern/compile ",")))))
 	      
 	  ;;    (catch Exception e (invoke-method
 	;;			  thread
