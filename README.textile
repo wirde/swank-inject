@@ -11,3 +11,12 @@ Start application in remote debug mode using JVM switches:
 
 Start injector:
 java -cp swank-inject-1.0.0-SNAPSHOT-standalone.jar com.wirde.inject.Main -host localhost -port 7777 -url [URL to the standalone jar] -instances [qualified class name of a (singleton) instance]
+
+Run Emacs (with swank-clojure installed)
+
+
+h2. TODO
+
+* Error handling
+* Handle singletons being loaded in multiple classloaders. How to select which leg to follow?
+* Ability to inject "ordinary" remote shell, and not just swank-clojure
