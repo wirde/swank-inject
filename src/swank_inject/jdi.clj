@@ -1,15 +1,14 @@
 (ns swank-inject.jdi
-  (:require [clojure.string :as str]))
-
-;;TODO: Move to ns?
-(import '(com.sun.jdi Bootstrap VirtualMachineManager)
-	'(com.sun.tools.jdi SocketAttachingConnector)
-	'(com.sun.jdi.event BreakpointEvent))
+  (:require [clojure.string :as str])
+  (:import [com.sun.jdi Bootstrap VirtualMachineManager])
+  (:import [com.sun.tools.jdi SocketAttachingConnector])
+  (:import [com.sun.jdi.event BreakpointEvent]))
 
 (def *finalizer-thread* "Finalizer")
 (def *timeout* 10000)
 
 ;;TODO: pre-conditions
+;;TODO: use bindings for thread?
 
 (defn attach-to-vm [host port]
   (let [connectors (.attachingConnectors (Bootstrap/virtualMachineManager))
@@ -94,6 +93,7 @@
 		 (list classloader)))
 
 (defn create-url-classloader [thread urls parent]
+  (println "cl parent: " parent)
   (let [vm (.virtualMachine thread)]
     (new-instance thread
 		  "java.net.URLClassLoader"
@@ -108,13 +108,42 @@
 				(to-value-list vm (list %)))
 			      urls))
 			parent))))
-  
+
+;;true if classloader is cl1 is a grandchild (or identical to) cl2
+;;false if the classloader hieararchies are disjoint or if they both use the bootstrap classloader
+(defn descendant? [thread cl1 cl2]
+  (println "cl1: " cl1)
+  (println "cl2: " cl2)
+  (if (= cl1 cl2)
+    true
+    (if (nil? cl1)
+      false
+      (recur thread (invoke-method thread
+				   cl1
+				   "getParent"
+				   "()Ljava/lang/ClassLoader;"
+				   '())
+	     cl2))))
+
+(defn find-instance-with-lowest-common-classloader
+  ([thread instance1 instance2]
+     (let [cl1 (.classLoader (.referenceType instance1))
+	   cl2 (.classLoader (.referenceType instance2))]
+       (if (descendant? thread cl1 cl2)
+	 instance1
+	 (if (descendant? thread cl2 cl1)
+	   instance2
+	   nil))))
+  ([thread instances]
+     (if (nil? (rest instances))
+       (first instances)
+       (reduce #(find-instance-with-lowest-common-classloader thread %1 %2) instances))))
+
 (defn inject-bootstrapper [thread urls injectee instances]
   (let [vm (.virtualMachine thread)
 	prev-context-classloader (get-context-classloader thread)
-	;;TODO: Find a suitable parent classloader given the classes already loaded
-	url-classloader (create-url-classloader thread urls (.getClassLoader (.getClass (first instances))))]
-    
+	;;If the classloader hierarchy is disjoint, then the bootstrap classloader will be used.
+	url-classloader (create-url-classloader thread urls (.classLoader (.referenceType (find-instance-with-lowest-common-classloader thread instances))))]
     (set-context-classloader thread url-classloader)
     
     (let [bootstrapper (invoke-method
@@ -155,6 +184,7 @@
 					   "()Ljava/lang/Object;"
 					   '())
 			    remote-args))]
-      
+	(println "after inject")      
 	(set-context-classloader thread prev-context-classloader)
+	(println "done in inject-boot")
 	result))))

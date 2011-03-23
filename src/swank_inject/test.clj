@@ -2,7 +2,6 @@
   (:use [swank-inject.jdi]))
 
 (comment
-
   (let [vm (attach-to-vm "localhost" 7777)
 	thread (suspend-finalizer-thread vm)]
     (try
