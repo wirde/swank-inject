@@ -135,9 +135,11 @@
 	   instance2
 	   nil))))
   ([thread instances]
-     (if (nil? (rest instances))
-       (first instances)
-       (reduce #(find-instance-with-lowest-common-classloader thread %1 %2) instances))))
+     (if (nil? instances)
+       nil
+       (if (nil? (rest instances))
+	 (first instances)
+	 (reduce #(find-instance-with-lowest-common-classloader thread %1 %2) instances)))))
 
 (defn inject-bootstrapper [thread urls injectee instances]
   (let [vm (.virtualMachine thread)

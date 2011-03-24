@@ -14,7 +14,6 @@ java -cp swank-inject-1.0.0-SNAPSHOT-standalone.jar com.wirde.inject.Main -host 
 
 Run Emacs (with swank-clojure installed)
 
-
 h2. TODO
 
 * Error handling
