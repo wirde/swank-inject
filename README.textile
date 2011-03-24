@@ -13,8 +13,13 @@ Start injector:
 java -cp swank-inject-1.0.0-SNAPSHOT-standalone.jar com.wirde.inject.Main -host localhost -port 7777 -url [URL to the standalone jar] -instances [qualified class names (singleton) of the instances you want available in the REPL]
 
 Connect to the REPL using telnet (port 4711)
-
+//
 Your instances will be available in a sequence bound to swank-inject.aot/*ctx*
+//
+h2. Limitations
+
+Probably only works for HotSpot...
+Expects instances passed to be singletons, if not then the first found instance will be used.
 
 h2. TODO
 
