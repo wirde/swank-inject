@@ -8,7 +8,6 @@
 (def *timeout* 10000)
 
 ;;TODO: pre-conditions
-;;TODO: use bindings for thread?
 
 (defn attach-to-vm [host port]
   (let [connectors (.attachingConnectors (Bootstrap/virtualMachineManager))
@@ -93,7 +92,6 @@
 		 (list classloader)))
 
 (defn create-url-classloader [thread urls parent]
-  (println "cl parent: " parent)
   (let [vm (.virtualMachine thread)]
     (new-instance thread
 		  "java.net.URLClassLoader"
@@ -112,8 +110,6 @@
 ;;true if classloader is cl1 is a grandchild (or identical to) cl2
 ;;false if the classloader hieararchies are disjoint or if they both use the bootstrap classloader
 (defn descendant? [thread cl1 cl2]
-  (println "cl1: " cl1)
-  (println "cl2: " cl2)
   (if (= cl1 cl2)
     true
     (if (nil? cl1)
