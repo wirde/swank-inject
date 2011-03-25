@@ -2,9 +2,9 @@ h1. Injecting a Clojure REPL in an unmodified application
 
 "It's a hack, but it (kind of) works..."
 
-A tool which lets you "inject" a REPL into a running Java application with remote debugging enabled. You can also specify one or more singletons which will be bound to the symbol  @swank-inject.aot/*ctx*@.
+A tool which lets you "inject" a Clojure REPL into a running Java application with remote debugging enabled. You are also able to also specify one or more singletons which will be bound to the symbol  @swank-inject.aot/*ctx*@.
 
-You can then (for instance) bind your ApplicationContext in a Spring application. From your ApplicationContext you can reach your beans and invoke arbitrary methods on them. This gives you a very powerful tool to investigate and poke in the guts of your running application.
+You can then (for example) bind your ApplicationContext in a Spring application. From your ApplicationContext you can reach your beans and invoke arbitrary methods on them. This gives you a very powerful tool to investigate and poke in the guts of your running application.
 
 h2. Building
 
@@ -16,7 +16,7 @@ Start application in remote debug mode using JVM switches:
 -Xdebug -Xrunjdwp:transport=dt_socket,address=7777,server=y,suspend=n 
 
 Start injector:
-java -cp swank-inject-1.0.0-SNAPSHOT-standalone.jar com.wirde.inject.Main -host localhost -port 7777 -url [URL to the standalone jar] -instances [qualified class names (singleton) of the instances you want available in the REPL]
+java -cp swank-inject-0.0.1-SNAPSHOT-standalone.jar com.wirde.inject.Main -host localhost -port 7777 -url [URL to the standalone jar] -instances [qualified class names (singleton) of the instances you want available in the REPL]
 
 Connect to the REPL using telnet (port 4711)
 
@@ -33,5 +33,4 @@ h2. TODO
 
 * Error handling
 * Handle singletons being loaded in multiple classloaders. How to select which leg to follow?
-* Ability to inject "ordinary" remote shell, and not just swank-clojure
-* Alternatively start a Swank REPL
+* Alternatively start a Swank REPL.
