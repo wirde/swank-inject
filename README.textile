@@ -1,5 +1,11 @@
 h1. Injecting a Clojure REPL in an unmodified application 
 
+"It's a hack, but it (kind of) works..."
+
+A tool which lets you "inject" a REPL into a running Java application with remote debugging enabled. You can also specify one or more singletons which will be bound to the symbol  @swank-inject.aot/*ctx*@.
+
+You can then (for instance) bind your ApplicationContext in a Spring application. From your ApplicationContext you can reach your beans and invoke arbitrary methods on them. This gives you a very powerful tool to investigate and poke in the guts of your running application.
+
 h2. Building
 
 lein uberjar
@@ -20,6 +26,8 @@ h2. Limitations
 
 Probably only works for HotSpot...
 Expects instances passed to be singletons, if not then the first found instance will be used.
+Will currently not work predictably if the class is loaded in multiple classloaders.
+Using Swank as the injected REPL does not work well for some reason. For now I am using clojure.contrib.server-socket/create-repl-server instead.
 
 h2. TODO
 
