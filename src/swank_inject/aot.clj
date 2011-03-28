@@ -45,9 +45,9 @@
 		thread (suspend-finalizer-thread vm)]
 	    (try
 	      (println (inject-bootstrapper
-		      thread
-		      (list url)
-		      "com.wirde.inject.ReplInjectee"
+			thread
+			(list url)
+			"com.wirde.inject.ReplInjectee"
 			(map #(find-first-instance vm %) (str/split instances (java.util.regex.Pattern/compile ",")))))
 	      
 ;	      (catch Exception e (invoke-method
@@ -59,8 +59,7 @@
 	      (finally (.dispose vm)))
 	    ))))
   (shutdown-agents)
-  (println "Done")
-  )
+  (println "Done"))
 
 (defn injecter-inject [this injectee args]
   (.inject injectee args)
@@ -68,7 +67,6 @@
 
 (defn repl-server-inject [this args]
 ;  (binding [user/*ctx* (seq args)]
-  ;TODO: want to use bindings, but swank starts it's own thread...
   (def *ctx* (seq args))
   (.println System/out "Starting REPL")
   (.println System/out *ctx*)

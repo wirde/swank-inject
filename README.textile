@@ -27,10 +27,10 @@ Your instances will be available in a sequence bound to @swank-inject.aot/*ctx*@
 
 h2. Limitations
 
-Probably only works for HotSpot...
-Expects instances passed to be singletons, if not then the first found instance will be used.
-Will currently not work predictably if the class is loaded in multiple classloaders.
-Using Swank as the injected REPL does not work well for some reason. For now I am using clojure.contrib.server-socket/create-repl-server instead.
+* Probably only works for HotSpot...
+* Expects instances passed to be singletons, if not then the first found instance will be used.
+* Will currently not work predictably if the class is loaded in multiple classloaders.
+* Using Swank as the injected REPL does not work well for some reason. For now I am using clojure.contrib.server-socket/create-repl-server instead.
 
 h2. TODO
 

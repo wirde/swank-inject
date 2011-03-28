@@ -9,8 +9,6 @@
 ;;Uses dynamic binding to keep track of the (remote) thread method invocation should be perfomed in
 (def thread nil)
 
-;;TODO: pre-conditions
-
 (defn attach-to-vm [host port]
   (let [connectors (.attachingConnectors (Bootstrap/virtualMachineManager))
 	socket-conn (first (filter #(instance? SocketAttachingConnector %) connectors))
@@ -27,8 +25,7 @@
 ;;without knowledge of the running code. It works by putting a breakpoint in the code run by the finalizer thread and
 ;;then interrupting that thread. It will stay suspended until thread.resume() or vm.dispose() is called.
 (defn suspend-finalizer-thread [vm]
-  {:pre [(not (nil? vm))]
-   :post [(.isAtBreakpoint %)]}
+  {:post [(.isAtBreakpoint %)]}
   (let [thread (first (filter #(.equals *finalizer-thread* (.name %)) (.allThreads vm)))]
     (.suspend thread)
     (let [breakpoint (.createBreakpointRequest (.eventRequestManager vm) (.location (.frame thread 1)))]
@@ -42,7 +39,6 @@
     thread))
 
 (defn locate-class [vm clazz]
-  {:pre [(not (nil? vm))]}
   ;;TODO: Handle the same class loaded in different classloaders.
   (first (.classesByName vm clazz)))
 
@@ -56,6 +52,7 @@
 		     0))))
 
 (defn new-instance [class-name signature args]
+  {:pre (list? args)}
   ;;TODO: load class if not already loaded
   (let [clazz (locate-class (.virtualMachine thread) class-name)]
     (.newInstance clazz
@@ -65,18 +62,18 @@
 		  0)))
 
 (defn create-array [type members]
+  {:pre (list? args)}
   (let [arr (.newInstance (locate-class (.virtualMachine thread) (str type "[]")) (count members))]
     (.setValues arr members)
     arr))
 
 (defn to-value-list [vm args]
-  {:pre [(not (nil? vm))]}
+  {:pre (list? args)}
   (map #(.mirrorOf vm %) args))
 
 ;;TODO: Deal with multiple classloaders
 (defn find-first-instance [vm class-name]
-  {:pre [(not (nil? vm))]
-   :post [(not (nil? %))]}
+  {:post [(not (nil? %))]}
   (first (.instances (locate-class vm class-name) 1)))
 
 (defn load-class [classloader class-name]
