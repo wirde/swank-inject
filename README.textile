@@ -6,6 +6,8 @@ A tool which lets you "inject" a Clojure REPL into a running Java application wi
 
 You can then (for example) bind your ApplicationContext in a Spring application. From your ApplicationContext you can reach your beans and invoke arbitrary methods on them. This gives you a very powerful tool to investigate and poke in the guts of your running application.
 
+Uses Java Debug Interface (JDI) and a URLClassLoader to inject the code (http://download.oracle.com/javase/6/docs/jdk/api/jpda/jdi/index.html)
+
 h2. Building
 
 lein uberjar
@@ -33,4 +35,5 @@ h2. TODO
 
 * Error handling
 * Handle singletons being loaded in multiple classloaders. How to select which leg to follow?
-* Alternatively start a Swank REPL.
+* Alternatively start a Swank REPL
+* Allow injection of arbitrary code (works, but not yet exposed)
