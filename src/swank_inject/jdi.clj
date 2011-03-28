@@ -62,7 +62,7 @@
 		  0)))
 
 (defn create-array [type members]
-  {:pre (list? args)}
+  {:pre (list? members)}
   (let [arr (.newInstance (locate-class (.virtualMachine thread) (str type "[]")) (count members))]
     (.setValues arr members)
     arr))
@@ -82,18 +82,18 @@
 			 "(Ljava/lang/String;Z)Ljava/lang/Class;")
    (to-value-list (.virtualMachine thread) (list class-name true))))
 
-(defn get-context-classloader-handle [thread]
+(defn- get-context-classloader-handle [thread]
   (remote-method-handle thread
 			"getContextClassLoader"
 			"()Ljava/lang/ClassLoader;"))
 
-(defn set-context-classloader [thread classloader]
+(defn- set-context-classloader [thread classloader]
   ((remote-method-handle thread
 			"setContextClassLoader"
 			"(Ljava/lang/ClassLoader;)V")
    (list classloader)))
 
-(defn create-url-classloader [urls parent]
+(defn- create-url-classloader [urls parent]
   (let [vm (.virtualMachine thread)]
     (new-instance "java.net.URLClassLoader"
 		  "([Ljava/net/URL;Ljava/lang/ClassLoader;)V"
@@ -108,7 +108,7 @@
 
 ;;true if classloader is cl1 is a grandchild (or identical to) cl2
 ;;false if the classloader hieararchies do not belong to the same branch or if they both use the bootstrap classloader
-(defn descendant? [cl1 cl2]
+(defn- descendant? [cl1 cl2]
   (if (= cl1 cl2)
     true
     (if (nil? cl1)
@@ -119,7 +119,7 @@
 	      '())
 	     cl2))))
 
-(defn find-instance-with-lowest-common-classloader
+(defn- find-instance-with-lowest-common-classloader
   ([instance1 instance2]
      (let [cl1 (.classLoader (.referenceType instance1))
 	   cl2 (.classLoader (.referenceType instance2))]
