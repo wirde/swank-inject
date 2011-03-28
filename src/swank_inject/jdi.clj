@@ -18,6 +18,12 @@
     (.setValue (.get args "timeout") *timeout*)
     (.attach socket-conn args)))
 
+;;Invoking methods on mirrored instances requires a reference to a thread which has been suspended by an event which
+;;occurred in that thread.
+;;[http://download.oracle.com/javase/6/docs/jdk/api/jpda/jdi/com/sun/jdi/ObjectReference.html#invokeMethod(com.sun.jdi.ThreadReference, com.sun.jdi.Method, java.util.List, int)]
+;;Calling ThreadReference.suspend() does *not* work. This hack will get you such a thread (at least for HotSpot 1.6)
+;;without knowledge of the running code. It works by putting a breakpoint in the code run by the finalizer thread and
+;;then interrupting that thread. It will stay suspended until thread.resume() or vm.dispose() is called.
 (defn suspend-finalizer-thread [vm]
   {:pre [(not (nil? vm))]
    :post [(.isAtBreakpoint %)]}
