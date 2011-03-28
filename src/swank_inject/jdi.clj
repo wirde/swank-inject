@@ -51,6 +51,15 @@
 		 args
 		 0))
 
+(defn remote-method-handle [class-reference name signature]
+  (let [method (.concreteMethodByName class-reference name signature)]
+    (fn [thread instance args]
+      (.invokeMethod instance
+		     thread
+		     method
+		     args
+		     0))))
+
 (defn new-instance [thread class-name signature args]
   ;;TODO: load class if not already loaded
   (let [clazz (locate-class (.virtualMachine thread) class-name)]
@@ -114,7 +123,7 @@
 			parent))))
 
 ;;true if classloader is cl1 is a grandchild (or identical to) cl2
-;;false if the classloader hieararchies are disjoint or if they both use the bootstrap classloader
+;;false if the classloader hieararchies do not belong to the same branch or if they both use the bootstrap classloader
 (defn descendant? [thread cl1 cl2]
   (if (= cl1 cl2)
     true
@@ -146,7 +155,7 @@
 (defn inject-bootstrapper [thread urls injectee instances]
   (let [vm (.virtualMachine thread)
 	prev-context-classloader (get-context-classloader thread)
-	;;If the classloader hierarchy is disjoint, then the bootstrap classloader will be used.
+	;;If the classloader hierarchy is not traceable through a common leaf, then the bootstrap classloader will be used.
 	url-classloader (create-url-classloader thread urls (.classLoader (.referenceType (find-instance-with-lowest-common-classloader thread instances))))]
     (set-context-classloader thread url-classloader)
     
