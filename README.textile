@@ -10,7 +10,8 @@ Uses Java Debug Interface (JDI) and a URLClassLoader to inject the code (http://
 
 h2. Building
 
-lein uberjar
+Built with https://github.com/technomancy/leiningen
+> lein uberjar
 
 h2. Usage
 
