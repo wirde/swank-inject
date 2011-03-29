@@ -172,7 +172,5 @@
 					       "()Ljava/lang/Object;")
 			 '())
 			remote-args))]
-		  (println "after inject")      
 		  (set-context-classloader thread prev-context-classloader)
-		  (println "done in inject-boot")
 		  result)))))

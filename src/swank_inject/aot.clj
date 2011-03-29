@@ -65,6 +65,8 @@
   (.inject injectee args)
   (.println System/out "done injecting"))
 
+;TODO: want to use bindings, but the REPLs start their own thread...
+
 (defn repl-server-inject [this args]
 ;  (binding [user/*ctx* (seq args)]
   (def *ctx* (seq args))
@@ -75,7 +77,6 @@
 
 (defn swank-inject [this args]
 ;  (binding [user/*ctx* (seq args)]
-  ;TODO: want to use bindings, but swank starts it's own thread...
   (def *ctx* (seq args))
   (.println System/out "Starting Swank")
   (.println System/out *ctx*)
