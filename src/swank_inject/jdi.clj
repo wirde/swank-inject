@@ -73,8 +73,10 @@
 
 ;;TODO: Deal with multiple classloaders
 (defn find-first-instance [vm class-name]
-  {:post [(not (nil? %))]}
-  (first (.instances (locate-class vm class-name) 1)))
+  (let [clazz (locate-class vm class-name)]
+    (if (nil? clazz)
+      nil
+      (first (.instances clazz 1)))))
 
 (defn load-class [classloader class-name]
   ((remote-method-handle classloader

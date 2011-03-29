@@ -10,12 +10,12 @@
 
 (gen-interface
  :name com.wirde.inject.Injectee
- :methods [[inject [java.util.List] Object]]) ;;void?
+ :methods [[inject [java.util.List] Object]])
 
 (gen-class
  :name com.wirde.inject.Injecter
  :prefix "injecter-"
- :methods [[inject [com.wirde.inject.Injectee java.util.List] Object]]) ;;void?
+ :methods [[inject [com.wirde.inject.Injectee java.util.List] Object]])
 
 (gen-class
  :name com.wirde.inject.SwankInjectee
@@ -27,6 +27,23 @@
  :implements [com.wirde.inject.Injectee]
  :prefix "repl-server-")
 
+(defn- print-remote-stacktrace [thread ex]
+  (binding [swank-inject.jdi/thread thread]
+    (println (.value ((remote-method-handle ex
+					    "toString"
+					    "()Ljava/lang/String;")
+		      '())))				    
+    (doall
+     (map (fn [e] (println "    at"
+			   (.value ((remote-method-handle e
+							  "toString"
+							  "()Ljava/lang/String;")
+				    '()))))
+	  (.getValues ((remote-method-handle ex
+					     "getStackTrace"
+					     "()[Ljava/lang/StackTraceElement;")
+		       '()))))))
+
 ;;TODO:
 ;;Better error message
 (defn -main [& args]
@@ -35,7 +52,8 @@
     [[host "The hostname of the (remote) process"]
      [port "The portnumber of the process with remote debugging enabled"]
      [url "URL to swank-inject jar-file"]
-     [instances "Comma separated list of classes to locate instances for"] 
+     [instances "Comma separated list of classes to locate instances for"]
+     [injectee "Injectee class (default com.wirde.inject.ReplInjectee)"]
      remaining]
     (if (or (nil? host) (nil? port) (nil? url) (nil? instances))
 	(println "Host, port, url and instance class names must be specified using -host <arg> -port <arg> -url <arg> -instances <arg>")
@@ -47,17 +65,18 @@
 	      (println (inject-bootstrapper
 			thread
 			(list url)
-			"com.wirde.inject.ReplInjectee"
-			(map #(find-first-instance vm %) (str/split instances (java.util.regex.Pattern/compile ",")))))
-	      
-;	      (catch Exception e (invoke-method
-;				  thread
-;				  (.exception e)
-;				  "printStackTrace"
-;				  "()V"
-;				  '()))
-	      (finally (.dispose vm)))
-	    ))))
+			(if (nil? injectee)
+			  "com.wirde.inject.ReplInjectee"
+			  injectee)
+			(remove nil? (map #(find-first-instance vm %)
+					  (str/split instances (java.util.regex.Pattern/compile ","))))))
+	      (catch com.sun.jdi.InvocationException e
+		(do
+		  (println "Got remote Exception")
+		  (print-remote-stacktrace thread (.exception e))))
+	      (catch Exception e
+		(.printStackTrace e))
+	      (finally (.dispose vm)))))))
   (shutdown-agents)
   (println "Done"))
 
