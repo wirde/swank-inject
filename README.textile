@@ -4,7 +4,7 @@ h1. Injecting a Clojure REPL in an unmodified application
 
 A tool which lets you "inject" a Clojure REPL into a running Java application with remote debugging enabled. You are also able to also specify one or more singletons which will be bound to the symbol  @swank-inject.aot/*ctx*@.
 
-You can then (for example) bind your ApplicationContext in a Spring application. From your ApplicationContext you can reach your beans and invoke arbitrary methods on them. This gives you a very powerful tool to investigate and poke in the guts of your running application.
+If you have a Spring application for example - you can then bind your ApplicationContext. From your ApplicationContext you can reach your beans and invoke arbitrary methods on them. This gives you a very powerful tool to investigate and poke in the guts of your running application.
 
 Uses Java Debug Interface (JDI) and a URLClassLoader to inject the code (http://download.oracle.com/javase/6/docs/jdk/api/jpda/jdi/index.html)
 
@@ -29,12 +29,10 @@ h2. Limitations
 
 * Probably only works for HotSpot...
 * Expects instances passed to be singletons, if not then the first found instance will be used.
-* Will currently not work predictably if the class is loaded in multiple classloaders.
+* Will currently not work reliably if the class is loaded in multiple classloaders.
 * Using Swank as the injected REPL does not work well for some reason. For now I am using clojure.contrib.server-socket/create-repl-server instead.
 
 h2. TODO
 
-* Error handling
-* Handle singletons being loaded in multiple classloaders. How to select which leg to follow?
+* Handle singletons being loaded in multiple classloaders. How to select which branch to follow?
 * Alternatively start a Swank REPL
-* Allow injection of arbitrary code (works, but not yet exposed)
