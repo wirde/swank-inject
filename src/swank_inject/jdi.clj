@@ -6,7 +6,7 @@
 
 (def *finalizer-thread* "Finalizer")
 (def *timeout* 10000)
-;;Uses dynamic binding to keep track of the (remote) thread method invocation should be perfomed in
+;;Uses dynamic binding to keep track of the (remote) thread method invocation should be performed in
 (def thread nil)
 
 (defn attach-to-vm [host port]
