@@ -1,4 +1,4 @@
-(defproject swank-inject "0.0.1-SNAPSHOT"
+(defproject swank-inject "0.0.2-SNAPSHOT"
   :description "Inject clojure code into a running application with remote debugging enabled"
   :dependencies [[org.clojure/clojure "1.2.0"]
                  [org.clojure/clojure-contrib "1.2.0"]
