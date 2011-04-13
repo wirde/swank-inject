@@ -11,17 +11,30 @@ h2. Building
 Built with https://github.com/technomancy/leiningen
 > lein uberjar
 
-h2. Usage
+h2. Sample Usage
+
+Show options:
+> java -cp swank-inject-0.0.2-SNAPSHOT-standalone.jar com.wirde.inject.Main -h
+Remote Swank injector.Options
+  --host <arg>       The hostname of the (remote) process                           
+  --port <arg>       The portnumber of the process with remote debugging enabled    
+  --urls <arg>       Comma separated list of URLs to jar-files used while injecting 
+  --instances <arg>  Comma separated list of classes to locate instances for        
+  --injectee <arg>   Injectee class (default com.wirde.inject.ReplInjectee)
 
 Start application in remote debug mode using JVM switches:
 -Xdebug -Xrunjdwp:transport=dt_socket,address=7777,server=y,suspend=n 
 
 Start injector:
-java -cp swank-inject-0.0.1-SNAPSHOT-standalone.jar com.wirde.inject.Main -host localhost -port 7777 -url [URL to the standalone jar] -instances [qualified class names (singleton) of the instances you want available in the REPL]
+> java -cp swank-inject-0.0.2-SNAPSHOT-standalone.jar com.wirde.inject.Main -host localhost -port 7777 -urls file:///home/wirde/swank-inject-0.0.2-SNAPSHOT-standalone.jar -instances com.wirde.MySingleton
 
 Connect to the REPL using telnet (port 4711)
 
 Your instances will be available in a sequence bound to @swank-inject.aot/*ctx*@
+
+h2. Injecting other code
+
+By providing an implementation of com.wirde.inject.Injectee using the "-injectee" option (must be available in one of the jars pointed to by -urls) you can inject arbitrary code.
 
 h2. Limitations
 

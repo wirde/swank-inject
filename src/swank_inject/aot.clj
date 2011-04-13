@@ -28,6 +28,7 @@
  :prefix "repl-server-")
 
 (defn- print-remote-stacktrace [thread ex]
+  (println "Got remote Exception")
   (binding [swank-inject.jdi/thread thread]
     (println (.value ((remote-method-handle ex
 					    "toString"
@@ -51,32 +52,32 @@
     "Remote Swank injector."
     [[host "The hostname of the (remote) process"]
      [port "The portnumber of the process with remote debugging enabled"]
-     [url "URL to swank-inject jar-file"]
+     [urls "Comma separated list of URLs to jar-files used while injecting"]
      [instances "Comma separated list of classes to locate instances for"]
      [injectee "Injectee class (default com.wirde.inject.ReplInjectee)"]
      remaining]
-    (if (or (nil? host) (nil? port) (nil? url) (nil? instances))
-	(println "Host, port, url and instance class names must be specified using -host <arg> -port <arg> -url <arg> -instances <arg>")
+    (if (or (nil? host) (nil? port) (nil? urls) (nil? instances))
+      (println "Host, port, urls and instance class names must be specified using -host <arg> -port <arg> -url <arg> -instances <arg>")
       (if (not (empty? remaining))
 	(println "Unknown arguments: " remaining)
-	  (let [vm (attach-to-vm host port)
-		thread (suspend-finalizer-thread vm)]
-	    (try
-	      (println (inject-bootstrapper
-			thread
-			(list url)
-			(if (nil? injectee)
-			  "com.wirde.inject.ReplInjectee"
-			  injectee)
-			(remove nil? (map #(find-first-instance vm %)
-					  (str/split instances (java.util.regex.Pattern/compile ","))))))
-	      (catch com.sun.jdi.InvocationException e
-		(do
-		  (println "Got remote Exception")
-		  (print-remote-stacktrace thread (.exception e))))
-	      (catch Exception e
-		(.printStackTrace e))
-	      (finally (.dispose vm)))))))
+	(let [vm (attach-to-vm host port)
+	      thread (suspend-finalizer-thread vm)]
+	  (try
+	    (println (inject-bootstrapper
+		      thread
+		      (str/split urls (java.util.regex.Pattern/compile ","))
+		      (if (nil? injectee)
+			"com.wirde.inject.ReplInjectee"
+			injectee)
+		      (remove nil? (map #(find-first-instance vm %)
+					(str/split instances (java.util.regex.Pattern/compile ","))))))
+	    (catch com.sun.jdi.InvocationException e		
+	      (print-remote-stacktrace thread (.exception e)))
+	    (catch Exception e
+	      (if (instance? com.sun.jdi.InvocationException (.getCause e))
+		(print-remote-stacktrace thread (.exception (.getCause e)))
+		(.printStackTrace e)))
+	    (finally (.dispose vm)))))))
   (shutdown-agents)
   (println "Done"))
 
