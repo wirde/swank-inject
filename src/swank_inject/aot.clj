@@ -6,7 +6,10 @@
   (:require [clojure.contrib.command-line :as command-line])
   (:require [clojure.string :as str])
   (:require [swank.swank :as swank])
-  (:require [clojure.contrib.server-socket :as ss]))
+  (:require [clojure.contrib.server-socket :as ss])
+  (:use [clojure.main :only (repl)]))
+
+(def *ctx* nil)
 
 (gen-interface
  :name com.wirde.inject.Injectee
@@ -85,18 +88,23 @@
   (.inject injectee args)
   (.println System/out "done injecting"))
 
-;TODO: want to use bindings, but the REPLs start their own thread...
+;;Copied from clojure-contrib since the original is private
+(defn- socket-repl [ins outs]
+  (binding [*in* (clojure.lang.LineNumberingPushbackReader. (java.io.InputStreamReader. ins))
+            *out* (java.io.OutputStreamWriter. outs)
+            *err* (java.io.PrintWriter. #^java.io.OutputStream outs true)]
+    (repl)))
 
 (defn repl-server-inject [this args]
-;  (binding [user/*ctx* (seq args)]
-  (def *ctx* (seq args))
   (.println System/out "Starting REPL")
   (.println System/out *ctx*)
-  (ss/create-repl-server 4711)
+  (binding [*ctx* (seq args)]
+    (ss/create-server 4711 (bound-fn* socket-repl)))
   (.println System/out "Started REPL"))
 
 (defn swank-inject [this args]
 ;  (binding [user/*ctx* (seq args)]
+; would prefer to use dynamic binding here, but swank starts its own thread and I can't use bound-fn*
   (def *ctx* (seq args))
   (.println System/out "Starting Swank")
   (.println System/out *ctx*)
