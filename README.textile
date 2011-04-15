@@ -32,6 +32,11 @@ Connect to the REPL using telnet (port 4711)
 
 Your instances will be available in a sequence bound to @swank-inject.aot/*ctx*@
 
+h2. Injecting a Swank server
+
+At the moment injecting a Swank repl does not work completely (the injecting process never exits). To try it out anyway, use the following option:
+-injectee com.wirde.inject.SwankInjectee
+
 h2. Injecting other code
 
 By providing an implementation of com.wirde.inject.Injectee using the "-injectee" option (must be available in one of the jars pointed to by -urls) you can inject arbitrary code.
@@ -41,7 +46,7 @@ h2. Limitations
 * Probably only works for HotSpot...
 * Expects classes passed to be singletons, if not then the first found instance will be used.
 * Will currently not work reliably if the class is loaded in multiple classloaders.
-* Using Swank as the injected REPL does not work well for some reason. For now I am using clojure.contrib.server-socket/create-repl-server instead.
+* Using Swank as the injected REPL does not work well for some reason. For now I am using clojure.contrib.server-socket/create-repl-server as the default.
 
 h2. TODO
 
