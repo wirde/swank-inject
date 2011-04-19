@@ -82,7 +82,7 @@
   ((remote-method-handle classloader
 			 "loadClass"
 			 "(Ljava/lang/String;Z)Ljava/lang/Class;")
-   (to-value-list (.virtualMachine thread) (list class-name true))))
+   (to-value-list (.virtualMachine thread) [class-name true])))
 
 (defn- get-context-classloader-handle [thread]
   (remote-method-handle thread
@@ -93,19 +93,19 @@
   ((remote-method-handle thread
 			"setContextClassLoader"
 			"(Ljava/lang/ClassLoader;)V")
-   (list classloader)))
+   [classloader]))
 
 (defn- create-url-classloader [urls parent]
   (let [vm (.virtualMachine thread)]
     (new-instance "java.net.URLClassLoader"
 		  "([Ljava/net/URL;Ljava/lang/ClassLoader;)V"
-		  (list (create-array
+		  ([create-array
 			 "java.net.URL" 
 			 (map #(new-instance
 				"java.net.URL"
 				"(Ljava/lang/String;)V"
-				(to-value-list vm (list %)))
-			      urls))
+				(to-value-list vm [%]))
+			      urls)]
 			parent))))
 
 ;;true if classloader is cl1 is a grandchild (or identical to) cl2
@@ -145,8 +145,7 @@
 		  url-classloader (create-url-classloader urls (.classLoader (.referenceType (find-instance-with-lowest-common-classloader instances))))]
 	      (set-context-classloader thread url-classloader)
 	      
-	      (let [bootstrapper ((remote-method-handle (load-class url-classloader
-								    "com.wirde.inject.Injecter")
+	      (let [bootstrapper ((remote-method-handle (load-class url-classloader "com.wirde.inject.Injecter")
 							"newInstance"
 							"()Ljava/lang/Object;")
 				  '())
@@ -158,7 +157,7 @@
 		    ((remote-method-handle %1
 					   "add"
 					   "(Ljava/lang/Object;)Z")
-		     (list %2))
+		     [%2])
 		    %1)
 		 remote-args
 		 instances)
@@ -167,12 +166,10 @@
 		      ((remote-method-handle bootstrapper
 					     "inject"
 					     "(Lcom/wirde/inject/Injectee;Ljava/util/List;)Ljava/lang/Object;")
-		       (list
-			((remote-method-handle (load-class url-classloader
-							   injectee)
+		       [((remote-method-handle (load-class url-classloader injectee)
 					       "newInstance"
 					       "()Ljava/lang/Object;")
 			 '())
-			remote-args))]
+			remote-args])]
 		  (set-context-classloader thread prev-context-classloader)
 		  result)))))
