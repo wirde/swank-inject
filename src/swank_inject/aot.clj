@@ -7,6 +7,8 @@
   (:require [clojure.string :as str])
   (:require [swank.swank :as swank])
   (:require [clojure.contrib.server-socket :as ss])
+  (:import [com.sun.tools.jdi SocketAttachingConnector])
+  (:import [com.sun.tools.jdi ProcessAttachingConnector])
   (:use [clojure.main :only (repl)]))
 
 (def *ctx* nil)
@@ -63,7 +65,7 @@
       (println "Host, port, urls and instance class names must be specified using -host <arg> -port <arg> -url <arg> -instances <arg>")
       (if (not (empty? remaining))
 	(println "Unknown arguments: " remaining)
-	(let [vm (attach-to-vm host port)
+	(let [vm (attach-to-vm SocketAttachingConnector {"hostname" host "port" port})
 	      thread (suspend-finalizer-thread vm)]
 	  (try
 	    (println (inject-bootstrapper

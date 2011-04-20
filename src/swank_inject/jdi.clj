@@ -1,7 +1,6 @@
 (ns swank-inject.jdi
   (:require [clojure.string :as str])
   (:import [com.sun.jdi Bootstrap VirtualMachineManager])
-  (:import [com.sun.tools.jdi SocketAttachingConnector])
   (:import [com.sun.jdi.event BreakpointEvent]))
 
 (def *finalizer-thread* "Finalizer")
@@ -9,13 +8,13 @@
 ;;Uses dynamic binding to keep track of the (remote) thread method invocation should be performed in
 (def thread nil)
 
-(defn attach-to-vm [host port]
+(defn attach-to-vm [connector-clazz args-map]
   (let [connectors (.attachingConnectors (Bootstrap/virtualMachineManager))
-	socket-conn (first (filter #(instance? SocketAttachingConnector %) connectors))
+	socket-conn (first (filter #(instance? connector-clazz %) connectors))
 	args (.defaultArguments socket-conn)]
-    (.setValue (.get args "port") port)
-    (.setValue (.get args "hostname") host)
-    (.setValue (.get args "timeout") *timeout*)
+    (dorun (map (fn [x] (.setValue (.get args (first x))
+				   (second x)))
+		(assoc args-map "timeout" *timeout*)))
     (.attach socket-conn args)))
 
 ;;Invoking methods on mirrored instances requires a reference to a thread which has been suspended by an event which
