@@ -53,9 +53,11 @@ h2. Sample run using the Spring sample application "swf-booking-mvc"
 Slightly contrived example of how the tool can be used to explore and poke at an existing application.
 
 h3. Inject REPL
+
 > java -cp swank-inject-0.5.0-SNAPSHOT-standalone.jar com.wirde.inject.Main -host localhost -port 7777 -urls file:///home/wirde/temp/inject-test/swank-inject-0.5.0-SNAPSHOT-standalone.jar -instances org.springframework.web.context.support.XmlWebApplicationContext
 
 h3. Connect using telnet
+
 ;;First get at the bookingService handle
 clojure.core=> (def app-ctx (first swank-inject.aot/*ctx*))
 #'clojure.core/app-ctx
