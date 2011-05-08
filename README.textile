@@ -57,7 +57,7 @@ h3. Inject REPL
 > java -cp swank-inject-0.5.0-SNAPSHOT-standalone.jar com.wirde.inject.Main -host localhost -port 7777 -urls file:///home/wirde/temp/inject-test/swank-inject-0.5.0-SNAPSHOT-standalone.jar -instances org.springframework.web.context.support.XmlWebApplicationContext
 
 h3. Connect using telnet
-
+@
 ;;First get at the bookingService handle
 clojure.core=> (def app-ctx (first swank-inject.aot/*ctx*))
 #'clojure.core/app-ctx
@@ -73,10 +73,7 @@ clojure.core=> (def search (doto (org.springframework.webflow.samples.booking.Se
 ;;Find all hotels with price lower than 100
 clojure.core=> (filter #(< (.getPrice %) 100) (.findHotels bookingService search))
 (#<Hotel Hotel(Jameson Inn,890 Palm Bay Rd NE,Palm Bay,32905)> #<Hotel Hotel(Sea Horse Inn,2106 N Clairemont Ave,Eau Claire,54703)> #<Hotel Hotel(Super 8 Eau Claire Campus Area,1151 W Macarthur Ave,Eau Claire,54701)>)
-
-
-
-
+@
 
 h2. TODO
 
