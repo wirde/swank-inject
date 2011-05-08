@@ -1,4 +1,4 @@
-# Injecting a Clojure REPL in an unmodified application 
+# Injecting a Clojure REPL in an unmodified Java application 
 
 A tool which lets you "inject" a Clojure REPL into a running Java application with remote debugging enabled. You are also able to specify one or more classes, one instance of each of those classes (preferably singletons) will be bound to the symbol:
 
@@ -55,7 +55,7 @@ By providing an implementation of com.wirde.inject.Injectee using the "-injectee
 
 ## Sample run using the Spring sample application "swf-booking-mvc" 
 
-Slightly contrived example of how the tool can be used to explore and poke at an existing application. Using one of the Spring Web Flow Reference Applicatons: (http://www.springsource.org/webflow-samples)
+Slightly contrived example of how injecting a Clojure REPL can be useful to explore and poke at an existing application. Using one of the Spring Web Flow Reference Applicatons: (http://www.springsource.org/webflow-samples)
 
 ### Inject REPL
 
