@@ -2,7 +2,7 @@
 
 A tool which lets you "inject" a Clojure REPL into a running Java application with remote debugging enabled. You are also able to specify one or more classes, one instance of each of those classes (preferably singletons) will be bound to the symbol:
 
-  swank-inject.aot/*ctx*
+     swank-inject.aot/*ctx*
 
 Uses Java Debug Interface (JDI) and a URLClassLoader to inject the code (http://download.oracle.com/javase/6/docs/jdk/api/jpda/jdi/index.html)
 
@@ -10,7 +10,7 @@ Uses Java Debug Interface (JDI) and a URLClassLoader to inject the code (http://
 
 Built with https://github.com/technomancy/leiningen
 
-      > lein uberjar
+     > lein uberjar
 
 ## Sample Usage
 
@@ -33,7 +33,9 @@ Start injector:
 
 Connect to the REPL using telnet (port 4711)
 
-Your instances will be available in a sequence bound to swank-inject.aot/*ctx*
+Your instances will be available in a sequence bound to 
+
+      swank-inject.aot/*ctx*
 
 ## Injecting a Swank server
 
@@ -53,7 +55,7 @@ By providing an implementation of com.wirde.inject.Injectee using the "-injectee
 
 ## Sample run using the Spring sample application "swf-booking-mvc" 
 
-Slightly contrived example of how the tool can be used to explore and poke at an existing application.
+Slightly contrived example of how the tool can be used to explore and poke at an existing application. Using one of the Spring Web Flow Reference Applicatons: (http://www.springsource.org/webflow-samples)
 
 ### Inject REPL
 
