@@ -59,6 +59,8 @@ Slightly contrived example of how injecting a Clojure REPL can be useful to expl
 
 ### Inject REPL
 
+Inject a handle to the Spring ApplicationContext from which Spring beans can be reached later on.
+
     > java -cp swank-inject-0.5.0-SNAPSHOT-standalone.jar com.wirde.inject.Main -host localhost -port 7777 -urls file:///home/wirde/temp/inject-test/swank-inject-0.5.0-SNAPSHOT-standalone.jar -instances org.springframework.web.context.support.XmlWebApplicationContext
 
 ### Connect using telnet
