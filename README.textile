@@ -48,6 +48,34 @@ h2. Limitations
 * Will currently not work reliably if the class is loaded in multiple classloaders.
 * Using Swank as the injected REPL does not work well for some reason. For now I am using clojure.contrib.server-socket/create-repl-server as the default.
 
+h2. Sample run using the Spring sample application "swf-booking-mvc" 
+
+Slightly contrived example of how the tool can be used to explore and poke at an existing application.
+
+h3. Inject REPL
+> java -cp swank-inject-0.5.0-SNAPSHOT-standalone.jar com.wirde.inject.Main -host localhost -port 7777 -urls file:///home/wirde/temp/inject-test/swank-inject-0.5.0-SNAPSHOT-standalone.jar -instances org.springframework.web.context.support.XmlWebApplicationContext
+
+h3. Connect using telnet
+;;First get at the bookingService handle
+clojure.core=> (def app-ctx (first swank-inject.aot/*ctx*))
+#'clojure.core/app-ctx
+clojure.core=> (def bookingService (.getBean app-ctx "bookingService"))
+#'clojure.core/bookingService
+clojure.core=> bookingService
+#<$Proxy19 org.springframework.webflow.samples.booking.JpaBookingService@3853cb28>
+
+;;Set up a wide search
+clojure.core=> (def search (doto (org.springframework.webflow.samples.booking.SearchCriteria.) (.setSearchString "") (.setPageSize 100)))
+#'clojure.core/search
+
+;;Find all hotels with price lower than 100
+clojure.core=> (filter #(< (.getPrice %) 100) (.findHotels bookingService search))
+(#<Hotel Hotel(Jameson Inn,890 Palm Bay Rd NE,Palm Bay,32905)> #<Hotel Hotel(Sea Horse Inn,2106 N Clairemont Ave,Eau Claire,54703)> #<Hotel Hotel(Super 8 Eau Claire Campus Area,1151 W Macarthur Ave,Eau Claire,54701)>)
+
+
+
+
+
 h2. TODO
 
 * Handle singletons being loaded in multiple classloaders. How to select which branch to follow?
