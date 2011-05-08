@@ -53,6 +53,7 @@
 (defn new-instance [class-name signature args]
   {:pre (list? args)}
   ;;TODO: load class if not already loaded
+
   (let [clazz (locate-class (.virtualMachine thread) class-name)]
     (.newInstance clazz
 		  thread
@@ -98,14 +99,14 @@
   (let [vm (.virtualMachine thread)]
     (new-instance "java.net.URLClassLoader"
 		  "([Ljava/net/URL;Ljava/lang/ClassLoader;)V"
-		  ([create-array
-			 "java.net.URL" 
-			 (map #(new-instance
-				"java.net.URL"
-				"(Ljava/lang/String;)V"
-				(to-value-list vm [%]))
-			      urls)]
-			parent))))
+		  [(create-array
+		    "java.net.URL" 
+		    (map #(new-instance
+			   "java.net.URL"
+			   "(Ljava/lang/String;)V"
+			   (to-value-list vm [%]))
+			 urls))
+		   parent])))
 
 ;;true if classloader is cl1 is a grandchild (or identical to) cl2
 ;;false if the classloader hieararchies do not belong to the same branch or if they both use the bootstrap classloader

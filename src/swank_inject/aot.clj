@@ -79,9 +79,10 @@
 	    (catch com.sun.jdi.InvocationException e		
 	      (print-remote-stacktrace thread (.exception e)))
 	    (catch Exception e
-	      (if (instance? com.sun.jdi.InvocationException (.getCause e))
-		(print-remote-stacktrace thread (.exception (.getCause e)))
-		(.printStackTrace e)))
+	      (let [cause (.getCause e)]
+		(if (instance? com.sun.jdi.InvocationException cause)
+		  (print-remote-stacktrace thread (.exception cause))
+		  (.printStackTrace e))))
 	    (finally (.dispose vm)))))))
   (shutdown-agents)
   (println "Done"))
