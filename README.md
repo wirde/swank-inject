@@ -1,6 +1,7 @@
 # Injecting a Clojure REPL in an unmodified application 
 
 A tool which lets you "inject" a Clojure REPL into a running Java application with remote debugging enabled. You are also able to specify one or more classes, one instance of each of those classes (preferably singletons) will be bound to the symbol:
+
   swank-inject.aot/*ctx*
 
 Uses Java Debug Interface (JDI) and a URLClassLoader to inject the code (http://download.oracle.com/javase/6/docs/jdk/api/jpda/jdi/index.html)
@@ -16,12 +17,12 @@ Built with https://github.com/technomancy/leiningen
 Show options:
 
      > java -cp swank-inject-0.5.0-SNAPSHOT-standalone.jar com.wirde.inject.Main -h
-        Remote Swank injector.Options
-    	   --host <arg>       The hostname of the (remote) process                           
-	   --port <arg>       The portnumber of the process with remote debugging enabled    
-    	   --urls <arg>       Comma separated list of URLs to jar-files used while injecting 
-    	   --instances <arg>  Comma separated list of classes to locate instances for        
-    	   --injectee <arg>   Injectee class (default com.wirde.inject.ReplInjectee)
+       Remote Swank injector.Options
+           --host <arg>       The hostname of the (remote) process                           
+           --port <arg>       The portnumber of the process with remote debugging enabled    
+           --urls <arg>       Comma separated list of URLs to jar-files used while injecting 
+           --instances <arg>  Comma separated list of classes to locate instances for        
+           --injectee <arg>   Injectee class (default com.wirde.inject.ReplInjectee)
 
 Start application in remote debug mode using JVM switches:
 -Xdebug -Xrunjdwp:transport=dt_socket,address=7777,server=y,suspend=n 
