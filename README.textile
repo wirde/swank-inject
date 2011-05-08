@@ -58,21 +58,21 @@ h3. Inject REPL
 
 h3. Connect using telnet
 
-@;;First get at the bookingService handle
-clojure.core=> (def app-ctx (first swank-inject.aot/*ctx*))
-#'clojure.core/app-ctx
-clojure.core=> (def bookingService (.getBean app-ctx "bookingService"))
-#'clojure.core/bookingService
-clojure.core=> bookingService
-#<$Proxy19 org.springframework.webflow.samples.booking.JpaBookingService@3853cb28>
+@;;First get at the bookingService handle@
+@clojure.core=> (def app-ctx (first swank-inject.aot/*ctx*))@
+@#'clojure.core/app-ctx@
+@clojure.core=> (def bookingService (.getBean app-ctx "bookingService"))@
+@#'clojure.core/bookingService@
+@clojure.core=> bookingService@
+@#<$Proxy19 org.springframework.webflow.samples.booking.JpaBookingService@3853cb28>@
 
-;;Set up a wide search
-clojure.core=> (def search (doto (org.springframework.webflow.samples.booking.SearchCriteria.) (.setSearchString "") (.setPageSize 100)))
-#'clojure.core/search
+@;;Set up a wide search@
+@clojure.core=> (def search (doto (org.springframework.webflow.samples.booking.SearchCriteria.) (.setSearchString "") (.setPageSize 100)))@
+@#'clojure.core/search@
 
-;;Find all hotels with price lower than 100
-clojure.core=> (filter #(< (.getPrice %) 100) (.findHotels bookingService search))
-(#<Hotel Hotel(Jameson Inn,890 Palm Bay Rd NE,Palm Bay,32905)> #<Hotel Hotel(Sea Horse Inn,2106 N Clairemont Ave,Eau Claire,54703)> #<Hotel Hotel(Super 8 Eau Claire Campus Area,1151 W Macarthur Ave,Eau Claire,54701)>)@
+@;;Find all hotels with price lower than 100@
+@clojure.core=> (filter #(< (.getPrice %) 100) (.findHotels bookingService search))@
+@(#<Hotel Hotel(Jameson Inn,890 Palm Bay Rd NE,Palm Bay,32905)> #<Hotel Hotel(Sea Horse Inn,2106 N Clairemont Ave,Eau Claire,54703)> #<Hotel Hotel(Super 8 Eau Claire Campus Area,1151 W Macarthur Ave,Eau Claire,54701)>)@
 
 h2. TODO
 
