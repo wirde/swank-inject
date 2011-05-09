@@ -79,7 +79,7 @@ Inject a handle to the Spring ApplicationContext from which Spring beans can be 
 
     ;;Find all hotels in Eau Claire with price lower than 100
     clojure.core=> (filter #(and (= "Eau Claire" (.getCity %)) (< (.getPrice %) 100)) (.findHotels bookingService search))
-    (#<Hotel Hotel(Jameson Inn,890 Palm Bay Rd NE,Palm Bay,32905)> #<Hotel Hotel(Sea Horse Inn,2106 N Clairemont Ave,Eau Claire,54703)> #<Hotel Hotel(Super 8 Eau Claire Campus Area,1151 W Macarthur Ave,Eau Claire,54701)>)
+    (#<Hotel Hotel(Sea Horse Inn,2106 N Clairemont Ave,Eau Claire,54703)> #<Hotel Hotel(Super 8 Eau Claire Campus Area,1151 W Macarthur Ave,Eau Claire,54701)>)
 
 ## TODO
 
