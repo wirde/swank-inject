@@ -10,11 +10,11 @@
 
 (defn attach-to-vm [connector-clazz args-map]
   (let [connectors (.attachingConnectors (Bootstrap/virtualMachineManager))
-	socket-conn (first (filter #(instance? connector-clazz %) connectors))
-	args (.defaultArguments socket-conn)]
+        socket-conn (first (filter #(instance? connector-clazz %) connectors))
+        args (.defaultArguments socket-conn)]
     (dorun (map (fn [x] (.setValue (.get args (first x))
-				   (second x)))
-		(assoc args-map "timeout" *timeout*)))
+                          (second x)))
+             (assoc args-map "timeout" *timeout*)))
     (.attach socket-conn args)))
 
 ;;Invoking methods on mirrored instances requires a reference to a thread which has been suspended by an event which
@@ -33,7 +33,7 @@
       (.interrupt thread)
       ;;TODO: we could get other events here...
       (if (.isEmpty (.remove (.eventQueue vm) *timeout*))
-	(throw (RuntimeException. "Got no breakpoint event")))
+        (throw (RuntimeException. "Got no breakpoint event")))
       (.disable breakpoint))
     thread))
 
@@ -44,22 +44,19 @@
 (defn remote-method-handle [instance name signature]
   (let [method (.concreteMethodByName (.referenceType instance) name signature)]
     (fn [args]
-      (.invokeMethod instance
-		     thread
-		     method
-		     args
-		     0))))
+      (.invokeMethod instance thread method args 0))))
 
 (defn new-instance [class-name signature args]
   {:pre (list? args)}
   ;;TODO: load class if not already loaded
 
   (let [clazz (locate-class (.virtualMachine thread) class-name)]
-    (.newInstance clazz
-		  thread
-		  (.concreteMethodByName clazz "<init>" signature)
-		  args
-		  0)))
+    (.newInstance 
+      clazz
+      thread
+      (.concreteMethodByName clazz "<init>" signature)
+      args
+      0)))
 
 (defn create-array [type members]
   {:pre (list? members)}
@@ -79,34 +76,29 @@
       (first (.instances clazz 1)))))
 
 (defn load-class [classloader class-name]
-  ((remote-method-handle classloader
-			 "loadClass"
-			 "(Ljava/lang/String;Z)Ljava/lang/Class;")
-   (to-value-list (.virtualMachine thread) [class-name true])))
+  ((remote-method-handle 
+     classloader
+     "loadClass"
+     "(Ljava/lang/String;Z)Ljava/lang/Class;")
+    (to-value-list (.virtualMachine thread) [class-name true])))
 
 (defn- get-context-classloader-handle [thread]
-  (remote-method-handle thread
-			"getContextClassLoader"
-			"()Ljava/lang/ClassLoader;"))
+  (remote-method-handle thread "getContextClassLoader" "()Ljava/lang/ClassLoader;"))
 
 (defn- set-context-classloader [thread classloader]
-  ((remote-method-handle thread
-			"setContextClassLoader"
-			"(Ljava/lang/ClassLoader;)V")
-   [classloader]))
+  ((remote-method-handle thread "setContextClassLoader" "(Ljava/lang/ClassLoader;)V") [classloader]))
 
 (defn- create-url-classloader [urls parent]
   (let [vm (.virtualMachine thread)]
-    (new-instance "java.net.URLClassLoader"
-		  "([Ljava/net/URL;Ljava/lang/ClassLoader;)V"
-		  [(create-array
-		    "java.net.URL" 
-		    (map #(new-instance
-			   "java.net.URL"
-			   "(Ljava/lang/String;)V"
-			   (to-value-list vm [%]))
-			 urls))
-		   parent])))
+    (new-instance 
+      "java.net.URLClassLoader"
+      "([Ljava/net/URL;Ljava/lang/ClassLoader;)V"
+      [(create-array
+         "java.net.URL" 
+         (map 
+           #(new-instance "java.net.URL" "(Ljava/lang/String;)V" (to-value-list vm [%])) 
+           urls))
+       parent])))
 
 ;;true if classloader is cl1 is a grandchild (or identical to) cl2
 ;;false if the classloader hieararchies do not belong to the same branch or if they both use the bootstrap classloader
@@ -115,61 +107,56 @@
     true
     (if (nil? cl1)
       false
-      (recur ((remote-method-handle cl1
-				    "getParent"
-				    "()Ljava/lang/ClassLoader;")
-	      '())
-	     cl2))))
+      (recur 
+        ((remote-method-handle cl1 "getParent" "()Ljava/lang/ClassLoader;") '())
+        cl2))))
 
 (defn- find-instance-with-lowest-common-classloader
   ([instance1 instance2]
-     (let [cl1 (.classLoader (.referenceType instance1))
-	   cl2 (.classLoader (.referenceType instance2))]
-       (if (descendant? cl1 cl2)
-	 instance1
-	 (if (descendant? cl2 cl1)
-	   instance2
-	   nil))))
+    (let [cl1 (.classLoader (.referenceType instance1))
+          cl2 (.classLoader (.referenceType instance2))]
+      (if (descendant? cl1 cl2)
+        instance1
+        (if (descendant? cl2 cl1)
+          instance2
+          nil))))
   ([instances]
-     (if (nil? instances)
-       nil
-       (if (nil? (rest instances))
-	 (first instances)
-	 (reduce #(find-instance-with-lowest-common-classloader %1 %2) instances)))))
+    (if (nil? instances)
+      nil
+      (if (nil? (rest instances))
+        (first instances)
+        (reduce #(find-instance-with-lowest-common-classloader %1 %2) instances)))))
 
 (defn inject-bootstrapper [thread urls injectee instances]
   (binding [thread thread]
-	    (let [vm (.virtualMachine thread)
-		  prev-context-classloader ((get-context-classloader-handle thread) '())
-		  ;;If the classloader hierarchy is not traceable through a common leaf, then the bootstrap classloader will be used.
-		  url-classloader (create-url-classloader urls (.classLoader (.referenceType (find-instance-with-lowest-common-classloader instances))))]
-	      (set-context-classloader thread url-classloader)
-	      
-	      (let [bootstrapper ((remote-method-handle (load-class url-classloader "com.wirde.inject.Injecter")
-							"newInstance"
-							"()Ljava/lang/Object;")
-				  '())
-		    remote-args (new-instance "java.util.ArrayList"
-					      "()V"
-					      '())]
-		(reduce
-		 #(do
-		    ((remote-method-handle %1
-					   "add"
-					   "(Ljava/lang/Object;)Z")
-		     [%2])
-		    %1)
-		 remote-args
-		 instances)
-		
-		(let [result 
-		      ((remote-method-handle bootstrapper
-					     "inject"
-					     "(Lcom/wirde/inject/Injectee;Ljava/util/List;)Ljava/lang/Object;")
-		       [((remote-method-handle (load-class url-classloader injectee)
-					       "newInstance"
-					       "()Ljava/lang/Object;")
-			 '())
-			remote-args])]
-		  (set-context-classloader thread prev-context-classloader)
-		  result)))))
+    (let [vm (.virtualMachine thread)
+          prev-context-classloader ((get-context-classloader-handle thread) '())
+          ;;If the classloader hierarchy is not traceable through a common leaf, then the bootstrap classloader will be used.
+          url-classloader (create-url-classloader urls (.classLoader (.referenceType (find-instance-with-lowest-common-classloader instances))))]
+      (set-context-classloader thread url-classloader)
+      
+      (let [bootstrapper ((remote-method-handle 
+                            (load-class url-classloader "com.wirde.inject.Injecter")
+                            "newInstance"
+                            "()Ljava/lang/Object;")
+                           '())
+            remote-args (new-instance "java.util.ArrayList" "()V" '())]
+        (reduce
+          #(do
+             ((remote-method-handle %1 "add" "(Ljava/lang/Object;)Z") [%2])
+             %1)
+          remote-args
+          instances)
+        
+        (let [result 
+              ((remote-method-handle 
+                 bootstrapper
+                 "inject"
+                 "(Lcom/wirde/inject/Injectee;Ljava/util/List;)Ljava/lang/Object;")
+                [((remote-method-handle (load-class url-classloader injectee)
+                    "newInstance"
+                    "()Ljava/lang/Object;")
+                   '())
+                 remote-args])]
+          (set-context-classloader thread prev-context-classloader)
+          result)))))
