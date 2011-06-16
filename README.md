@@ -20,6 +20,8 @@ On other platforms those classes are generally found in tools.jar. To build you 
 
 ## Sample Usage
 
+In the samples below showing how to use swank-inject you will also need to add a path to tools.jar to the classpath on platforms where com.sun.jdi is not included in the normal runtime.
+
 Show options:
 
      > java -cp swank-inject-0.5.0-SNAPSHOT-standalone.jar com.wirde.inject.Main -h
