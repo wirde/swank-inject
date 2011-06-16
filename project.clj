@@ -4,4 +4,5 @@
                  [org.clojure/clojure-contrib "1.2.0"]
                  [swank-clojure "1.4.0-SNAPSHOT"]]
   :aot [swank-inject.aot]
+  :extra-classpath-dirs ["/usr/lib/jvm/default-java/lib/tools.jar"]
   :repl-init-script "src/swank_inject/test.clj")
