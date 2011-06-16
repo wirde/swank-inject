@@ -16,7 +16,7 @@ On OSX it is enough to do
 
 (because the com.sun.jdi package is a part of the normal runtime)
 
-On other platforms those classes are generally found in tools.jar. To build you need to make sure that the tools.jar path in project.clj is correct for your system. For the build to work a new feature of leiningen is needed - meaning version 1.6.0-SNAPSHOT of leiningen is needed.
+On other platforms those classes are generally found in tools.jar. To build you need to make sure that the tools.jar path in project.clj is correct for your system. For the build to work a new feature of leiningen is needed (:extra-classpath-dirs) - meaning version 1.6.0-SNAPSHOT of leiningen is required.
 
 ## Sample Usage
 
